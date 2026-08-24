@@ -1,0 +1,82 @@
+{
+  "extension": "@mgreten/implementer-benchmark",
+  "version": "2026.08.19.2",
+  "reviewedAt": "2026-08-24T13:19:34Z",
+  "dimensions": [
+    {
+      "id": "credentials-secrets",
+      "verdict": "issue",
+      "note": "The configured Swamp/agent subprocess intentionally inherits the host environment for provider authentication. Raw subprocess stdout/stderr are no longer persisted, and the README now requires trusted executable configuration and narrowly scoped benchmark credentials, but a compromised configured executable or agent implementation still has the host process credential authority. This cannot be removed here without breaking environment-authenticated providers; integration must use a dedicated least-privilege agent runtime."
+    },
+    {
+      "id": "logging-quality",
+      "verdict": "pass",
+      "note": "Structured info logs cover suite start, every terminal case, and suite completion without prompts, credentials, verifier output, or subprocess output."
+    },
+    {
+      "id": "error-handling",
+      "verdict": "pass",
+      "note": "Validation/preflight failures occur before writes; per-case failures have deterministic precedence. Cancellation raised during case work no longer becomes infrastructure_error, and cleanup runs in finally."
+    },
+    {
+      "id": "testing-completeness",
+      "verdict": "pass",
+      "note": "All 17 tests pass, covering fixtures, strict inputs, path boundaries, status precedence, cancellation, response/actor success, scope violation, timeout, missing artifacts, malformed response, no-change, hidden failure, verifier-output redaction, and workspace cleanup."
+    },
+    {
+      "id": "idempotency-resilience",
+      "verdict": "pass",
+      "note": "A suiteId is a one-run identity: duplicate live paths fail closed rather than overwrite evidence. Generated IDs include timestamp plus UUID entropy; candidate/task IDs are unique and resource identities include suite, candidate, and task. Partial completed cases are durable while temporary workspace state is removed."
+    },
+    {
+      "id": "api-contracts",
+      "verdict": "na",
+      "note": "The extension makes no direct HTTP API calls; agent interaction is through the typed Swamp CLI model envelope, which is Zod-validated before use."
+    },
+    {
+      "id": "resource-management",
+      "verdict": "pass",
+      "note": "Deno.Command output capture is byte-bounded while streams are drained, Linux children run in a new process group, cancellation/timeout sends SIGTERM then SIGKILL, timers/listeners are cleared, sandbox tests have 30s bounds, hidden directories are removed per case, and the entire suite workspace is now removed on every exit path."
+    },
+    {
+      "id": "published-surface-hygiene",
+      "verdict": "pass",
+      "note": "Fixtures are synthetic and documentation uses placeholder candidate/model identities. The README now states that bundled hardening verifier source is execution-hidden rather than cryptographically secret and that cost/output limits are scoring bounds, not provider spend controls."
+    },
+    {
+      "id": "schema-strictness",
+      "verdict": "pass",
+      "note": "All Zod objects are strict-by-default objects with no passthrough. Mechanical schema/write review found 1:1 fields for caseResult and suiteSummary; evidence is a declared JSON file spec. No capped collection silently claims completeness."
+    },
+    {
+      "id": "lifetime-gc",
+      "verdict": "pass",
+      "note": "caseResult, suiteSummary, and evidence all declare 365d lifetime and bounded garbageCollection counts; non-durable local suite files are now removed in finally."
+    },
+    {
+      "id": "crud-completeness",
+      "verdict": "na",
+      "note": "This is an append-only benchmark execution model, not a remote-resource CRUD lifecycle. It produces immutable run evidence and summaries."
+    },
+    {
+      "id": "preflight-checks",
+      "verdict": "pass",
+      "note": "Before candidate execution or data writes, preflight verifies the configured agent model and executes a Bubblewrap/Node smoke test with clear environment, unshared namespaces, read-only binds, and a timeout."
+    },
+    {
+      "id": "instance-names",
+      "verdict": "pass",
+      "note": "case and evidence identities are evidence/case-suiteId-candidateId-taskId; summary is summary-suiteId. Input schemas reject duplicate candidates/tasks and suite paths reject replay overwrite, so incompatible instances cannot collide."
+    },
+    {
+      "id": "data-access",
+      "verdict": "na",
+      "note": "Methods do not read prior stored state or access dataRepository directly; each suite is an independent append-only execution."
+    },
+    {
+      "id": "version-upgrades",
+      "verdict": "pass",
+      "note": "Version 2026.08.19.2 has an explicit upgrade entry; newly added executionMode and tiered score fields have defaults compatible with existing attributes."
+    }
+  ]
+}
